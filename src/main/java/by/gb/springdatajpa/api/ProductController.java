@@ -15,6 +15,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
+    private final int AMOUNT_PRODUCTS = 10;
+    private static int currentTenProducts = 0;
+
     @Autowired
     private ProductService service;
 
@@ -25,7 +28,8 @@ public class ProductController {
     }
 
     @GetMapping()
-    private List<Product> findAllProduct(@RequestParam Integer minPrice, @RequestParam Integer maxPrice) {
+    private List<Product> findAllProduct(@RequestParam Integer minPrice, @RequestParam Integer maxPrice, @RequestParam Integer step) {
+
 
         List<Product> list = service.findAllProducts();
 
@@ -38,7 +42,16 @@ public class ProductController {
                 .filter(product -> product.getPrice() <= maxPrice)
                 .collect(Collectors.toList());
 
-        return productList;
+        if (currentTenProducts + step >= 0 & currentTenProducts + step < productList.size() + AMOUNT_PRODUCTS) {
+            currentTenProducts = currentTenProducts + step;
+        }
+
+        List<Product> newList = productList.stream()
+                .skip(currentTenProducts)
+                .limit(AMOUNT_PRODUCTS)
+                .collect(Collectors.toList());
+
+        return newList;
     }
 
 

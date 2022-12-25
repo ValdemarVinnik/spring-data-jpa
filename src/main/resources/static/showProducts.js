@@ -1,5 +1,6 @@
 angular.module('app',[]).controller('showController',function ($scope, $http){
     const contextPath = "http://localhost:8282/app/products";
+    var step = 0;
 
     $scope.displayProduct = function () {
 
@@ -19,24 +20,31 @@ angular.module('app',[]).controller('showController',function ($scope, $http){
     console.log(maxPrice)
 
     console.log('display Product')
-//        $http.get(contextPath)
-//            .then(function(response) {
-//                 $scope.ProductList = response.data;
-//            });
 
-$http({
+        $http({
         url: contextPath,
         method: 'GET',
         params:{
            minPrice: minPrice,
-           maxPrice: maxPrice
+           maxPrice: maxPrice,
+           step: step
            }
         }).then(function(response){
             $scope.ProductList = response.data;
             });
         }
 
+      $scope.previousPage = function(){
+      step = -10;
+      console.log(step);
+      $scope.displayProduct();
+      }
 
+      $scope.nextPage = function(){
+      step = 10;
+      console.log(step);
+      $scope.displayProduct();
+      }
 
       $scope.update = function(productId){
       console.log('update');
@@ -64,19 +72,6 @@ $http({
                     $scope.displayProduct()
                     });
                 }
-
-
-
-//  $scope.deleteProduct = function(productId){
-//        $http({
-//        url: contextPath +'/delete/',
-//        method: 'GET',
-//        params:{
-//            productId: productId}
-//        }).then(function(response){
-//            $scope.displayProduct()
-//            });
-//        }
 
     $scope.displayProduct();
 });
