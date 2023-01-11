@@ -1,6 +1,8 @@
 package by.gb.springdatajpa.model;
 
 
+import by.gb.springdatajpa.api.ProductController;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -9,6 +11,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "products")
+
 public class Product {
 
     @Id
@@ -24,6 +27,10 @@ public class Product {
 
     public String getTitle() {
         return title;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public void setTitle(String title) {
