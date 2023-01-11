@@ -29,6 +29,10 @@ public class Product {
         return title;
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }

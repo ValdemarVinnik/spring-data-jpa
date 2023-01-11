@@ -1,22 +1,20 @@
 package by.gb.springdatajpa.api;
 
+import by.gb.springdatajpa.dto.ProductDto;
 import by.gb.springdatajpa.model.Product;
 import by.gb.springdatajpa.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/api/v1/products")
 public class ProductController {
-    private final int AMOUNT_PRODUCTS = 10;
-    private static int currentTenProducts = 0;
 
     @Autowired
     private ProductService service;
@@ -27,40 +25,37 @@ public class ProductController {
         return optional.orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
     }
 
-    @GetMapping()
-    private List<Product> findAllProduct(@RequestParam Integer minPrice, @RequestParam Integer maxPrice, @RequestParam Integer step) {
 
-
-        List<Product> list = service.findAllProducts();
-
-        if (list == null | list.size() == 0) {
-            throw new ResponseStatusException(NOT_FOUND);
+    @GetMapping
+    private Page<ProductDto> findAllProduct(
+            @RequestParam(name = "minPrice", required = false) Long minPrice,
+            @RequestParam(name = "maxPrice", required = false) Long maxPrice,
+            @RequestParam(name = "page", defaultValue = "1") Integer page) {
+        if (page < 1) {
+            page = 1;
         }
 
-        List<Product> productList = list.stream()
-                .filter(p -> p.getPrice() >= minPrice)
-                .filter(product -> product.getPrice() <= maxPrice)
-                .collect(Collectors.toList());
-
-        if (currentTenProducts + step >= 0 & currentTenProducts + step < productList.size() + AMOUNT_PRODUCTS) {
-            currentTenProducts = currentTenProducts + step;
-        }
-
-        List<Product> newList = productList.stream()
-                .skip(currentTenProducts)
-                .limit(AMOUNT_PRODUCTS)
-                .collect(Collectors.toList());
-
-        return newList;
+        return service.find(maxPrice, minPrice, page).map(ProductDto::new);
     }
 
 
-    @PostMapping("/add")
-    private Product addProduct(@RequestParam String title, @RequestParam Long price) {
+    //    @PostMapping
+//    private Product saveProduct(@RequestParam String title, @RequestParam Long price) {
+//
+//        return service.saveProduct(new Product(title, price));
+//    }
+
+    @PostMapping
+    private Product saveProduct(@RequestBody ProductDto productDto) {
+        return service.saveProduct( new Product(productDto.getTitle(), productDto.getPrice()));
+    }
+
+    @PutMapping
+    private Product updateProduct(@RequestParam String title, @RequestParam Long price) {
         return service.saveProduct(new Product(title, price));
     }
 
-    @GetMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     private void deleteProductById(@PathVariable Long id) {
         service.deleteProductById(id);
     }

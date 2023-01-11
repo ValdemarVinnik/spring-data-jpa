@@ -1,6 +1,6 @@
 angular.module('app',[]).controller('showController',function ($scope, $http){
-    const contextPath = "http://localhost:8282/app/products";
-    var step = 0;
+    const contextPath = "http://localhost:8282/app/api/v1/products";
+    var page = 1;
 
     $scope.displayProduct = function () {
 
@@ -27,22 +27,26 @@ angular.module('app',[]).controller('showController',function ($scope, $http){
         params:{
            minPrice: minPrice,
            maxPrice: maxPrice,
-           step: step
+           page: page
            }
         }).then(function(response){
-            $scope.ProductList = response.data;
+        console.log(response.data.content);
+            $scope.ProductList = response.data.content;
             });
         }
 
       $scope.previousPage = function(){
-      step = -10;
-      console.log(step);
+      page = page -1;
+      if (page < 1){
+      page = 1;
+      }
+      console.log("page="+page);
       $scope.displayProduct();
       }
 
       $scope.nextPage = function(){
-      step = 10;
-      console.log(step);
+      page = page +1;
+      console.log(page);
       $scope.displayProduct();
       }
 
@@ -52,7 +56,7 @@ angular.module('app',[]).controller('showController',function ($scope, $http){
                      }
 
     $scope.deleteProduct = function(productId){
-              $http.get(contextPath+ '/delete/' + productId)
+              $http.delete(contextPath+ '/' + productId)
                          .then(function(response) {
                              $scope.displayProduct();
                          });
@@ -62,16 +66,21 @@ angular.module('app',[]).controller('showController',function ($scope, $http){
       console.log("click add Product");
       console.log($scope.title);
 
-        $http({
-                url: contextPath +'/add',
-                method: 'post',
-                params:{
-                    price:$scope.price,
-                    title:$scope.title}
-                }).then(function(response){
-                    $scope.displayProduct()
-                    });
-                }
+          $http.post(contextPath, $scope.newProduct)
+          .then(function(response){
+           $scope.displayProduct()
+            });
+           };
+//        $http({
+//                url: contextPath,
+//                method: 'post',
+//                params:{
+//                    price:$scope.price,
+//                    title:$scope.title}
+//                }).then(function(response){
+//                    $scope.displayProduct()
+//                    });
+//                }
 
     $scope.displayProduct();
 });
